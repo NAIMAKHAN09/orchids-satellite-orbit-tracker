@@ -4,92 +4,20 @@ import { useEffect, useState, useRef } from "react"
 import { motion } from "framer-motion"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Navigation, Database } from "lucide-react"
-import * as satellite from "satellite.js"
-
-interface SatellitePosition {
-  lat: number
-  lng: number
-  altitude: number
-  velocity: number
-}
-
-const ISS_TLE_LINE1 = "1 25544U 98067A   24063.48644508  .00014387  00000+0  26154-3 0  9990"
-const ISS_TLE_LINE2 = "2 25544  51.6416  60.4079 0005089 150.3957 263.8576 15.49893963441957"
+import { MapPin, Navigation, Database, ChevronDown, Check, Loader2 } from "lucide-react"
+import { useRealOrbit, SATELLITE_REGISTRY } from "@/hooks/useRealOrbit"
 
 export function WorldMap() {
+  const [selectedSatId, setSelectedSatId] = useState("iss")
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const selectedSat = SATELLITE_REGISTRY.find(s => s.id === selectedSatId) || SATELLITE_REGISTRY[0]
+  
+  const { position, groundTrack, loading, error } = useRealOrbit(selectedSat.catnr)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [position, setPosition] = useState<SatellitePosition>({
-    lat: 0,
-    lng: 0,
-    altitude: 400,
-    velocity: 7.66,
-  })
-  const [groundTrack, setGroundTrack] = useState<{ lat: number; lng: number }[]>([])
-  const [tle, setTle] = useState({ line1: ISS_TLE_LINE1, line2: ISS_TLE_LINE2 })
-
-  useEffect(() => {
-    const fetchTLE = async () => {
-      try {
-        const response = await fetch("https://tle.ivanstanojevic.me/api/tle/25544")
-        const data = await response.json()
-        if (data.line1 && data.line2) {
-          setTle({ line1: data.line1, line2: data.line2 })
-        }
-      } catch (error) {
-        console.error("Error fetching TLE:", error)
-      }
-    }
-    fetchTLE()
-  }, [])
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const now = new Date()
-      const satrec = satellite.twoline2satrec(tle.line1, tle.line2)
-      const positionAndVelocity = satellite.propagate(satrec, now)
-      
-      const positionEci = positionAndVelocity.position
-      if (typeof positionEci !== "boolean") {
-        const gmst = satellite.gstime(now)
-        const positionGd = satellite.eciToGeodetic(positionEci as satellite.EciVec3<number>, gmst)
-        
-        const longitude = satellite.degreesLong(positionGd.longitude)
-        const latitude = satellite.degreesLat(positionGd.latitude)
-        const height = positionGd.height
-        
-        // Velocity magnitude calculation
-        const velocityEci = positionAndVelocity.velocity
-        let velMag = 7.66
-        if (typeof velocityEci !== "boolean") {
-          velMag = Math.sqrt(
-            Math.pow(velocityEci.x, 2) + 
-            Math.pow(velocityEci.y, 2) + 
-            Math.pow(velocityEci.z, 2)
-          )
-        }
-
-        const newPos = {
-          lat: latitude,
-          lng: longitude,
-          altitude: height,
-          velocity: velMag,
-        }
-        
-        setPosition(newPos)
-        setGroundTrack((prev) => {
-          const newTrack = [...prev, { lat: newPos.lat, lng: newPos.lng }]
-          return newTrack.slice(-200)
-        })
-      }
-    }, 1000)
-
-    return () => clearInterval(interval)
-  }, [tle])
 
   useEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas) return
+    if (!canvas || !position) return
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
@@ -119,7 +47,7 @@ export function WorldMap() {
     drawContinents(ctx, width, height)
 
     if (groundTrack.length > 1) {
-      ctx.strokeStyle = "rgba(34, 211, 238, 0.4)"
+      ctx.strokeStyle = `${selectedSat.color}66`
       ctx.lineWidth = 2
       ctx.beginPath()
       let lastX = 0
@@ -147,15 +75,15 @@ export function WorldMap() {
     const satY = height / 2 - (position.lat / 90) * (height / 2)
 
     const pulseGradient = ctx.createRadialGradient(satX, satY, 0, satX, satY, 25)
-    pulseGradient.addColorStop(0, "rgba(34, 211, 238, 0.6)")
-    pulseGradient.addColorStop(0.5, "rgba(34, 211, 238, 0.2)")
-    pulseGradient.addColorStop(1, "rgba(34, 211, 238, 0)")
+    pulseGradient.addColorStop(0, `${selectedSat.color}99`)
+    pulseGradient.addColorStop(0.5, `${selectedSat.color}33`)
+    pulseGradient.addColorStop(1, "rgba(0,0,0,0)")
     ctx.fillStyle = pulseGradient
     ctx.beginPath()
     ctx.arc(satX, satY, 25, 0, Math.PI * 2)
     ctx.fill()
 
-    ctx.fillStyle = "#22d3ee"
+    ctx.fillStyle = selectedSat.color
     ctx.beginPath()
     ctx.arc(satX, satY, 6, 0, Math.PI * 2)
     ctx.fill()
@@ -165,34 +93,62 @@ export function WorldMap() {
     ctx.arc(satX, satY, 3, 0, Math.PI * 2)
     ctx.fill()
 
-    ctx.fillStyle = "#22d3ee"
+    ctx.fillStyle = selectedSat.color
     ctx.font = "bold 11px monospace"
-    ctx.fillText("LEO-SAT-01", satX + 12, satY - 8)
+    ctx.fillText(selectedSat.name, satX + 12, satY - 8)
     ctx.font = "10px monospace"
     ctx.fillStyle = "rgba(255,255,255,0.7)"
     ctx.fillText(`${position.lat.toFixed(2)}°, ${position.lng.toFixed(2)}°`, satX + 12, satY + 5)
-  }, [position, groundTrack])
+  }, [position, groundTrack, selectedSat])
 
   return (
     <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/50">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <MapPin className="w-4 h-4 text-cyan-400" />
-          <span className="text-sm font-bold">GROUND TRACK</span>
+          <span className="text-sm font-bold uppercase tracking-wider">Ground Track</span>
         </div>
-        <Badge variant="outline" className="border-cyan-500 text-cyan-400 text-xs">
-          <Navigation className="w-3 h-3 mr-1" />
-          ISS (REAL DATA)
-        </Badge>
+        
+        <div className="relative">
+          <button
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            className="flex items-center gap-2 px-2 py-1 rounded bg-secondary/50 border border-border/50 hover:border-primary/50 transition-all text-[10px] font-bold"
+          >
+            {selectedSat.name}
+            <ChevronDown className={`w-3 h-3 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+          </button>
+          
+          {dropdownOpen && (
+            <div className="absolute top-full right-0 mt-1 w-48 bg-card/95 backdrop-blur-sm border border-border/50 rounded shadow-xl z-50">
+              <div className="p-1">
+                {SATELLITE_REGISTRY.map((sat) => (
+                  <button
+                    key={sat.id}
+                    onClick={() => {
+                      setSelectedSatId(sat.id)
+                      setDropdownOpen(false)
+                    }}
+                    className="w-full flex items-center gap-2 px-2 py-1.5 rounded hover:bg-secondary/50 transition-all text-left text-[10px]"
+                  >
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: sat.color }} />
+                    <span className="flex-1">{sat.name}</span>
+                    {selectedSatId === sat.id && <Check className="w-3 h-3 text-primary" />}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
       
-      <div className="mb-2 flex items-center gap-2">
-        <Badge variant="secondary" className="text-[10px] bg-primary/20 text-primary border-primary/30">
-          REAL ORBIT DATA + SIMULATED TELEMETRY
+      <div className="mb-2 flex flex-wrap items-center gap-2">
+        <Badge variant="outline" className="text-[9px] border-cyan-500/50 text-cyan-400 px-1.5 py-0">
+          <Navigation className="w-2.5 h-2.5 mr-1" />
+          REAL-TIME TLE TRACKING
         </Badge>
-        <div className="flex items-center gap-1 text-[9px] text-muted-foreground italic">
+        <div className="flex items-center gap-1 text-[9px] text-muted-foreground">
           <Database className="w-2.5 h-2.5" />
-          Orbital data from public TLE sources (Celestrak)
+          Source: Celestrak TLE
         </div>
       </div>
       
@@ -200,33 +156,60 @@ export function WorldMap() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="relative rounded-lg overflow-hidden"
+        className="relative rounded-lg overflow-hidden bg-[#0a1628] aspect-[2/1] flex items-center justify-center"
       >
+        {loading && !position && (
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/20 backdrop-blur-[2px]">
+            <Loader2 className="w-6 h-6 text-primary animate-spin mb-2" />
+            <span className="text-[10px] font-mono animate-pulse">ACQUIRING ORBITAL ELEMENTS...</span>
+          </div>
+        )}
+        
+        {error && (
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-red-500/10 backdrop-blur-[2px]">
+            <span className="text-[10px] font-mono text-red-400 uppercase tracking-widest">{error}</span>
+          </div>
+        )}
+
         <canvas
           ref={canvasRef}
           width={600}
           height={300}
           className="w-full h-auto rounded-lg"
         />
+        
+        {selectedSatId === "iss" && (
+          <div className="absolute top-2 left-2 pointer-events-none">
+            <Badge variant="secondary" className="bg-primary/20 text-[8px] border-primary/30 uppercase">
+              Demo Lock: ISS Active
+            </Badge>
+          </div>
+        )}
       </motion.div>
 
-      <div className="mt-3 grid grid-cols-4 gap-2 text-center">
-        <div className="p-2 rounded bg-secondary/30">
-          <div className="text-xs text-muted-foreground font-mono">LAT</div>
-          <div className="text-sm font-bold text-cyan-400">{position.lat.toFixed(2)}°</div>
+      {position && (
+        <div className="mt-3 grid grid-cols-4 gap-2 text-center">
+          <div className="p-2 rounded bg-secondary/30 border border-border/20">
+            <div className="text-[9px] text-muted-foreground font-mono uppercase">Latitude</div>
+            <div className="text-xs font-bold text-cyan-400">{position.lat.toFixed(2)}°</div>
+          </div>
+          <div className="p-2 rounded bg-secondary/30 border border-border/20">
+            <div className="text-[9px] text-muted-foreground font-mono uppercase">Longitude</div>
+            <div className="text-xs font-bold text-cyan-400">{position.lng.toFixed(2)}°</div>
+          </div>
+          <div className="p-2 rounded bg-secondary/30 border border-border/20">
+            <div className="text-[9px] text-muted-foreground font-mono uppercase">Altitude</div>
+            <div className="text-xs font-bold text-emerald-400">{position.altitude.toFixed(1)} km</div>
+          </div>
+          <div className="p-2 rounded bg-secondary/30 border border-border/20">
+            <div className="text-[9px] text-muted-foreground font-mono uppercase">Velocity</div>
+            <div className="text-xs font-bold text-amber-400">{position.velocity.toFixed(2)} km/s</div>
+          </div>
         </div>
-        <div className="p-2 rounded bg-secondary/30">
-          <div className="text-xs text-muted-foreground font-mono">LNG</div>
-          <div className="text-sm font-bold text-cyan-400">{position.lng.toFixed(2)}°</div>
-        </div>
-        <div className="p-2 rounded bg-secondary/30">
-          <div className="text-xs text-muted-foreground font-mono">ALT</div>
-          <div className="text-sm font-bold text-emerald-400">{position.altitude.toFixed(1)} km</div>
-        </div>
-        <div className="p-2 rounded bg-secondary/30">
-          <div className="text-xs text-muted-foreground font-mono">VEL</div>
-          <div className="text-sm font-bold text-amber-400">{position.velocity.toFixed(2)} km/s</div>
-        </div>
+      )}
+      
+      <div className="mt-2 text-[8px] text-muted-foreground italic text-right">
+        Other satellites can be added using public TLE data
       </div>
     </Card>
   )
