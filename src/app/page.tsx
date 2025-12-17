@@ -1,7 +1,8 @@
 "use client"
 
+import { useState } from "react"
 import { motion } from "framer-motion"
-import { Satellite, Radio, Activity, Radar, Globe, Cpu, Clock, Target, Sparkles } from "lucide-react"
+import { Satellite, Radio, Activity, Radar, Globe, Cpu, Clock, Target, Sparkles, ChevronDown, Check } from "lucide-react"
 import { EarthGlobe } from "@/components/EarthGlobe"
 import { TelemetryPanel } from "@/components/TelemetryPanel"
 import { OrbitChart } from "@/components/OrbitChart"
