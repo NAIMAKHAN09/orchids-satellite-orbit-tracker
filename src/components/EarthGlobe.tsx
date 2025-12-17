@@ -78,41 +78,59 @@ export function EarthGlobe({ satellites, selectedId }: EarthGlobeProps) {
         ctx.stroke()
       }
 
-      satellites.forEach((sat) => {
-        const satAngle = (sat.angle * Math.PI) / 180
-        const satX = centerX + sat.distance * Math.cos(satAngle)
-        const satY = centerY + sat.distance * Math.sin(satAngle)
+        satellites.forEach((sat) => {
+          const isSelected = selectedId === sat.id
+          const satAngle = (sat.angle * Math.PI) / 180
+          const satX = centerX + sat.distance * Math.cos(satAngle)
+          const satY = centerY + sat.distance * Math.sin(satAngle)
 
-        ctx.strokeStyle = sat.color + "40"
-        ctx.lineWidth = 1
-        ctx.setLineDash([5, 5])
-        ctx.beginPath()
-        ctx.arc(centerX, centerY, sat.distance, 0, Math.PI * 2)
-        ctx.stroke()
-        ctx.setLineDash([])
+          // Orbit path
+          ctx.strokeStyle = isSelected ? sat.color + "80" : sat.color + "20"
+          ctx.lineWidth = isSelected ? 2 : 1
+          ctx.setLineDash(isSelected ? [] : [5, 5])
+          ctx.beginPath()
+          ctx.arc(centerX, centerY, sat.distance, 0, Math.PI * 2)
+          ctx.stroke()
+          ctx.setLineDash([])
 
-        const satGradient = ctx.createRadialGradient(satX, satY, 0, satX, satY, 6)
-        satGradient.addColorStop(0, sat.color)
-        satGradient.addColorStop(0.5, sat.color + "AA")
-        satGradient.addColorStop(1, sat.color + "00")
+          // Glow effect
+          const glowSize = isSelected ? 12 : 6
+          const satGradient = ctx.createRadialGradient(satX, satY, 0, satX, satY, glowSize)
+          satGradient.addColorStop(0, sat.color)
+          satGradient.addColorStop(0.5, sat.color + (isSelected ? "CC" : "88"))
+          satGradient.addColorStop(1, sat.color + "00")
 
-        ctx.fillStyle = satGradient
-        ctx.beginPath()
-        ctx.arc(satX, satY, 6, 0, Math.PI * 2)
-        ctx.fill()
+          ctx.fillStyle = satGradient
+          ctx.beginPath()
+          ctx.arc(satX, satY, glowSize, 0, Math.PI * 2)
+          ctx.fill()
 
-        ctx.fillStyle = sat.color
-        ctx.beginPath()
-        ctx.arc(satX, satY, 3, 0, Math.PI * 2)
-        ctx.fill()
+          // Satellite core
+          ctx.fillStyle = sat.color
+          ctx.beginPath()
+          ctx.arc(satX, satY, isSelected ? 4 : 3, 0, Math.PI * 2)
+          ctx.fill()
 
-        ctx.strokeStyle = sat.color
-        ctx.lineWidth = 1.5
-        ctx.beginPath()
-        ctx.moveTo(centerX, centerY)
-        ctx.lineTo(satX, satY)
-        ctx.stroke()
-      })
+          // Connection to center
+          ctx.strokeStyle = isSelected ? sat.color + "60" : sat.color + "20"
+          ctx.lineWidth = isSelected ? 1.5 : 1
+          ctx.beginPath()
+          ctx.moveTo(centerX, centerY)
+          ctx.lineTo(satX, satY)
+          ctx.stroke()
+
+          // Label for selected satellite
+          if (isSelected) {
+            ctx.fillStyle = "white"
+            ctx.font = "bold 12px JetBrains Mono, monospace"
+            ctx.fillText(sat.name.toUpperCase(), satX + 10, satY + 4)
+            
+            ctx.fillStyle = "rgba(255, 255, 255, 0.5)"
+            ctx.font = "10px JetBrains Mono, monospace"
+            ctx.fillText(`${(sat.speed * 7.5).toFixed(1)} km/s`, satX + 10, satY + 16)
+          }
+        })
+
 
       rotation += 0.002
     }
