@@ -33,6 +33,14 @@ export default function Home() {
       </div>
 
       <div className="relative z-10">
+        <div className="bg-primary/10 border-b border-primary/20 py-3">
+          <div className="container mx-auto px-6">
+            <p className="text-center text-sm md:text-base font-bold text-primary">
+              A simulated real-time satellite orbit and telemetry visualization dashboard.
+            </p>
+          </div>
+        </div>
+
         <header className="border-b border-border/50 backdrop-blur-sm bg-background/50">
           <div className="container mx-auto px-6 py-4">
             <motion.div
