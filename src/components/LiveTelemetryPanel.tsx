@@ -69,15 +69,15 @@ export function LiveTelemetryPanel() {
 
   return (
     <Card className="p-5 bg-card/50 backdrop-blur-sm border-border/50">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold flex items-center gap-2">
-          <Gauge className="w-5 h-5 text-primary" />
-          LIVE TELEMETRY
-        </h3>
-        <Badge variant="outline" className="border-emerald-500 text-emerald-400 pulse-glow text-xs">
-          STREAMING
-        </Badge>
-      </div>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold flex items-center gap-2">
+            <Gauge className="w-5 h-5 text-primary" />
+            SIMULATED TELEMETRY
+          </h3>
+          <Badge variant="outline" className="border-emerald-500 text-emerald-400 pulse-glow text-xs">
+            LIVE SIMULATION
+          </Badge>
+        </div>
 
       <div className="space-y-4">
         <TelemetryRow
