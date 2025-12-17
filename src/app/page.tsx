@@ -92,6 +92,9 @@ export default function Home() {
                         <div className="text-[10px] text-muted-foreground font-mono">
                           VEL: {(sat.speed * 7.5).toFixed(1)}km/s
                         </div>
+                        <div className="text-[10px] text-muted-foreground font-mono">
+                          ORBIT: #{sat.orbitNumber.toLocaleString()}
+                        </div>
                       </motion.div>
                     ))}
                   </div>
