@@ -7,12 +7,15 @@ import { useEffect } from "react"
 
 // Fix for default marker icons in Leaflet with Next.js
 // @ts-ignore
-delete L.Icon.Default.prototype._getIconUrl
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
-  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-})
+if (typeof window !== 'undefined') {
+  // @ts-ignore
+  delete L.Icon.Default.prototype._getIconUrl
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+    iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+    shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+  })
+}
 
 interface LeafletMapProps {
   position: { lat: number; lng: number }
@@ -20,6 +23,14 @@ interface LeafletMapProps {
   color: string
   name: string
   id: string
+}
+
+function RecenterMap({ position }: { position: [number, number] }) {
+  const map = useMap()
+  useEffect(() => {
+    // Optional: center map on satellite change
+  }, [position, map])
+  return null
 }
 
 export default function LeafletMap({ position, groundTrack, color, name, id }: LeafletMapProps) {
@@ -69,7 +80,6 @@ export default function LeafletMap({ position, groundTrack, color, name, id }: L
         style={{ height: '100%', width: '100%', background: '#0a1628' }}
         attributionControl={false}
       >
-
         {/* Google Hybrid (Satellite + Roads) */}
         <TileLayer
           url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}"
