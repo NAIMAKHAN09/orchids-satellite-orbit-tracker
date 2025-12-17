@@ -349,7 +349,26 @@ export default function Home() {
               </div>
             </Card>
           </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="mt-6 text-center"
+          >
+            <p className="text-sm text-muted-foreground italic">
+              <strong>Use Case:</strong> Useful for education, mission planning demos, and satellite monitoring concepts.
+            </p>
+          </motion.div>
         </main>
+
+        <footer className="border-t border-border/30 mt-8 py-4 bg-background/50 backdrop-blur-sm">
+          <div className="container mx-auto px-6 text-center">
+            <p className="text-sm text-muted-foreground">
+              Built by <span className="font-semibold text-primary">Naima & Shifa</span> · Team DualMind
+            </p>
+          </div>
+        </footer>
       </div>
 
       <div className="fixed bottom-4 right-4 z-20">
