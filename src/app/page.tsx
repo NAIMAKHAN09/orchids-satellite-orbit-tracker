@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge"
 export default function Home() {
   const satellites = useSatellites()
   const [selectedSatellites, setSelectedSatellites] = useState<string[]>(["iss", "starlink"])
+  const [selectedGlobeSatId, setSelectedGlobeSatId] = useState<string>("iss")
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
   const toggleSatellite = (satId: string) => {
