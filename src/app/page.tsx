@@ -208,10 +208,46 @@ export default function Home() {
                       <div className="text-xs text-muted-foreground font-mono">ORBITS COMPLETED</div>
                     </div>
                   </div>
+                  <div className="mb-4">
+                    <div className="relative inline-block">
+                      <button
+                        onClick={() => setDropdownOpen(!dropdownOpen)}
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary/50 border border-border/50 hover:border-primary/50 transition-all text-sm"
+                      >
+                        <Satellite className="w-4 h-4 text-primary" />
+                        <span className="font-mono">Select Satellites ({selectedSatellites.length})</span>
+                        <ChevronDown className={`w-4 h-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+                      </button>
+                      {dropdownOpen && (
+                        <div className="absolute top-full left-0 mt-2 w-64 bg-card/95 backdrop-blur-sm border border-border/50 rounded-lg shadow-xl z-50">
+                          <div className="p-2 space-y-1">
+                            {satellites.map((sat) => (
+                              <button
+                                key={sat.id}
+                                onClick={() => toggleSatellite(sat.id)}
+                                className="w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-secondary/50 transition-all text-left"
+                              >
+                                <div
+                                  className="w-3 h-3 rounded-full"
+                                  style={{ backgroundColor: sat.color }}
+                                />
+                                <span className="text-sm flex-1">{sat.name}</span>
+                                {selectedSatellites.includes(sat.id) && (
+                                  <Check className="w-4 h-4 text-primary" />
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {satellites.slice(0, 2).map((sat) => (
-                      <OrbitChart key={sat.id} satelliteName={sat.name} color={sat.color} />
-                    ))}
+                    {satellites
+                      .filter(sat => selectedSatellites.includes(sat.id))
+                      .map((sat) => (
+                        <OrbitChart key={sat.id} satelliteName={sat.name} color={sat.color} />
+                      ))}
                   </div>
                 </Card>
               </motion.div>
