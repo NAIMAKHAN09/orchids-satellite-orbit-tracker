@@ -14,6 +14,16 @@ import { Badge } from "@/components/ui/badge"
 
 export default function Home() {
   const satellites = useSatellites()
+  const [selectedSatellites, setSelectedSatellites] = useState<string[]>(["sat-1", "sat-2"])
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+
+  const toggleSatellite = (satId: string) => {
+    setSelectedSatellites(prev => 
+      prev.includes(satId) 
+        ? prev.filter(id => id !== satId)
+        : [...prev, satId]
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 relative overflow-hidden">
