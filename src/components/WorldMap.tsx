@@ -6,6 +6,16 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, Navigation, Database, ChevronDown, Check, Loader2 } from "lucide-react"
 import { useRealOrbit, SATELLITE_REGISTRY } from "@/hooks/useRealOrbit"
+import dynamic from "next/dynamic"
+
+const LeafletMap = dynamic(() => import("./LeafletMap"), { 
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full min-h-[300px] flex items-center justify-center bg-secondary/20 rounded-lg">
+      <Loader2 className="w-6 h-6 text-primary animate-spin" />
+    </div>
+  )
+})
 
 export function WorldMap() {
   const [selectedSatId, setSelectedSatId] = useState("iss")
@@ -13,93 +23,6 @@ export function WorldMap() {
   const selectedSat = SATELLITE_REGISTRY.find(s => s.id === selectedSatId) || SATELLITE_REGISTRY[0]
   
   const { position, groundTrack, loading, error } = useRealOrbit(selectedSat.catnr)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas || !position) return
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return
-
-    const width = canvas.width
-    const height = canvas.height
-
-    ctx.fillStyle = "#0a1628"
-    ctx.fillRect(0, 0, width, height)
-
-    ctx.strokeStyle = "rgba(59, 130, 246, 0.15)"
-    ctx.lineWidth = 1
-    for (let lat = -80; lat <= 80; lat += 20) {
-      const y = height / 2 - (lat / 90) * (height / 2)
-      ctx.beginPath()
-      ctx.moveTo(0, y)
-      ctx.lineTo(width, y)
-      ctx.stroke()
-    }
-    for (let lng = -180; lng <= 180; lng += 30) {
-      const x = (lng + 180) / 360 * width
-      ctx.beginPath()
-      ctx.moveTo(x, 0)
-      ctx.lineTo(x, height)
-      ctx.stroke()
-    }
-
-    drawContinents(ctx, width, height)
-
-    if (groundTrack.length > 1) {
-      ctx.strokeStyle = `${selectedSat.color}66`
-      ctx.lineWidth = 2
-      ctx.beginPath()
-      let lastX = 0
-      groundTrack.forEach((point, i) => {
-        const x = ((point.lng + 180) / 360) * width
-        const y = height / 2 - (point.lat / 90) * (height / 2)
-        if (i === 0) {
-          ctx.moveTo(x, y)
-          lastX = x
-        } else {
-          if (Math.abs(x - lastX) > width / 2) {
-            ctx.stroke()
-            ctx.beginPath()
-            ctx.moveTo(x, y)
-          } else {
-            ctx.lineTo(x, y)
-          }
-          lastX = x
-        }
-      })
-      ctx.stroke()
-    }
-
-    const satX = ((position.lng + 180) / 360) * width
-    const satY = height / 2 - (position.lat / 90) * (height / 2)
-
-    const pulseGradient = ctx.createRadialGradient(satX, satY, 0, satX, satY, 25)
-    pulseGradient.addColorStop(0, `${selectedSat.color}99`)
-    pulseGradient.addColorStop(0.5, `${selectedSat.color}33`)
-    pulseGradient.addColorStop(1, "rgba(0,0,0,0)")
-    ctx.fillStyle = pulseGradient
-    ctx.beginPath()
-    ctx.arc(satX, satY, 25, 0, Math.PI * 2)
-    ctx.fill()
-
-    ctx.fillStyle = selectedSat.color
-    ctx.beginPath()
-    ctx.arc(satX, satY, 6, 0, Math.PI * 2)
-    ctx.fill()
-
-    ctx.fillStyle = "#fff"
-    ctx.beginPath()
-    ctx.arc(satX, satY, 3, 0, Math.PI * 2)
-    ctx.fill()
-
-    ctx.fillStyle = selectedSat.color
-    ctx.font = "bold 11px monospace"
-    ctx.fillText(selectedSat.name, satX + 12, satY - 8)
-    ctx.font = "10px monospace"
-    ctx.fillStyle = "rgba(255,255,255,0.7)"
-    ctx.fillText(`${position.lat.toFixed(2)}°, ${position.lng.toFixed(2)}°`, satX + 12, satY + 5)
-  }, [position, groundTrack, selectedSat])
 
   return (
     <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/50">
@@ -156,7 +79,7 @@ export function WorldMap() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="relative rounded-lg overflow-hidden bg-[#0a1628] aspect-[2/1] flex items-center justify-center"
+        className="relative rounded-lg overflow-hidden bg-[#0a1628] aspect-[2/1]"
       >
         {loading && !position && (
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/20 backdrop-blur-[2px]">
@@ -171,15 +94,17 @@ export function WorldMap() {
           </div>
         )}
 
-        <canvas
-          ref={canvasRef}
-          width={600}
-          height={300}
-          className="w-full h-auto rounded-lg"
-        />
+        {position && (
+          <LeafletMap 
+            position={position} 
+            groundTrack={groundTrack} 
+            color={selectedSat.color} 
+            name={selectedSat.name}
+          />
+        )}
         
         {selectedSatId === "iss" && (
-          <div className="absolute top-2 left-2 pointer-events-none">
+          <div className="absolute top-2 left-2 z-[1000] pointer-events-none">
             <Badge variant="secondary" className="bg-primary/20 text-[8px] border-primary/30 uppercase">
               Demo Lock: ISS Active
             </Badge>
