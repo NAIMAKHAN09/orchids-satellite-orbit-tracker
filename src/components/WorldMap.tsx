@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useState } from "react"
 import { motion } from "framer-motion"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -139,6 +139,7 @@ export function WorldMap() {
     </Card>
   )
 }
+
 
 function drawContinents(ctx: CanvasRenderingContext2D, width: number, height: number) {
   ctx.fillStyle = "rgba(34, 197, 94, 0.3)"
