@@ -178,8 +178,8 @@ export default function Home() {
                   <div className="lg:col-span-1">
                     <LiveTelemetryPanel />
                   </div>
-                  <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {satellites.slice(0, 4).map((sat, i) => (
+                    <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {satellites.slice(0, 6).map((sat, i) => (
                       <TelemetryPanel
                         key={sat.id}
                         satelliteName={sat.name}
