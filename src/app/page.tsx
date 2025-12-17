@@ -376,11 +376,17 @@ export default function Home() {
           </motion.div>
         </main>
 
-        <footer className="border-t border-border/30 mt-8 py-4 bg-background/50 backdrop-blur-sm">
-          <div className="container mx-auto px-6 text-center">
+        <footer className="border-t border-border/30 mt-8 py-6 bg-background/50 backdrop-blur-sm">
+          <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground">
               Built by <span className="font-semibold text-primary">Naima & Shifa</span> · Team DualMind
             </p>
+            <div className="flex items-center gap-4">
+              <div className="text-[10px] text-muted-foreground font-mono flex items-center gap-1.5 bg-secondary/30 px-3 py-1.5 rounded-full border border-border/50">
+                <Database className="w-3 h-3 text-primary" />
+                ORBITAL DATA: PUBLIC TLE (CELESTRAK)
+              </div>
+            </div>
           </div>
         </footer>
       </div>
