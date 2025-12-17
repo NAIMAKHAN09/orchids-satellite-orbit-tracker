@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Satellite, Radio, Activity, Radar, Globe, Cpu, Clock, Target, Sparkles, ChevronDown, Check, ShieldCheck } from "lucide-react"
+import { Satellite, Radio, Activity, Radar, Globe, Cpu, Clock, Target, Sparkles, ChevronDown, Check, ShieldCheck, Database } from "lucide-react"
 import { EarthGlobe } from "@/components/EarthGlobe"
 import { TelemetryPanel } from "@/components/TelemetryPanel"
 import { OrbitChart } from "@/components/OrbitChart"
