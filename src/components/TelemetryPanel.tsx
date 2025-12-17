@@ -55,12 +55,13 @@ export function TelemetryPanel({ satelliteName, color, delay = 0 }: TelemetryPan
       transition={{ duration: 0.5, delay }}
     >
       <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/50 hover:border-primary/50 transition-all duration-300">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold" style={{ color }}>{satelliteName}</h3>
-          <Badge variant="outline" className="text-xs pulse-glow" style={{ borderColor: color, color }}>
-            ACTIVE
-          </Badge>
-        </div>
+          <div className="flex items-center justify-between mb-1">
+            <h3 className="text-sm font-bold" style={{ color }}>{satelliteName}</h3>
+            <Badge variant="outline" className="text-xs pulse-glow" style={{ borderColor: color, color }}>
+              ACTIVE
+            </Badge>
+          </div>
+          <div className="text-[10px] text-muted-foreground font-mono mb-3">SIMULATED TELEMETRY</div>
 
         <div className="space-y-2">
           <DataRow label="TEMP" value={`${telemetry.temperature.toFixed(1)}°C`} color={color} />
