@@ -100,6 +100,7 @@ export function WorldMap() {
             groundTrack={groundTrack} 
             color={selectedSat.color} 
             name={selectedSat.name}
+            id={selectedSat.id}
           />
         )}
         
