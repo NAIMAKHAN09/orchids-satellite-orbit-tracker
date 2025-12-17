@@ -136,28 +136,38 @@ export default function Home() {
                       </Badge>
                     </div>
                     <div className="flex justify-center">
-                      <EarthGlobe satellites={satellites} />
+                      <EarthGlobe satellites={satellites} selectedId={selectedGlobeSatId} />
                     </div>
                       <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
                         {satellites.slice(0, 12).map((sat, i) => (
-                        <motion.div
+                        <motion.button
                           key={sat.id}
+                          onClick={() => setSelectedGlobeSatId(sat.id)}
                           initial={{ opacity: 0, scale: 0.8 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ duration: 0.4, delay: 0.3 + i * 0.05 }}
-                          className="p-2 rounded-lg bg-secondary/30 border border-border/30 hover:border-primary/50 transition-all"
+                          className={`p-2 rounded-lg border transition-all text-left ${
+                            selectedGlobeSatId === sat.id 
+                              ? "bg-primary/20 border-primary shadow-[0_0_10px_rgba(var(--primary),0.3)]" 
+                              : "bg-secondary/30 border-border/30 hover:border-primary/50"
+                          }`}
                         >
                           <div className="flex items-center gap-1.5 mb-0.5">
                             <div
-                              className="w-2 h-2 rounded-full pulse-glow"
-                              style={{ backgroundColor: sat.color }}
+                              className={`w-2 h-2 rounded-full ${selectedGlobeSatId === sat.id ? 'animate-pulse' : ''}`}
+                              style={{ 
+                                backgroundColor: sat.color,
+                                boxShadow: selectedGlobeSatId === sat.id ? `0 0 8px ${sat.color}` : 'none'
+                              }}
                             />
-                            <span className="text-[10px] font-bold truncate">{sat.name}</span>
+                            <span className={`text-[10px] font-bold truncate ${selectedGlobeSatId === sat.id ? 'text-primary' : ''}`}>
+                              {sat.name}
+                            </span>
                           </div>
                           <div className="text-[9px] text-muted-foreground font-mono">
                             ORB #{sat.orbitNumber.toLocaleString()}
                           </div>
-                        </motion.div>
+                        </motion.button>
                       ))}
                     </div>
                   </Card>
