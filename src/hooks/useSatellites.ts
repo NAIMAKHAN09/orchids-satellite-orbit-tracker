@@ -19,6 +19,7 @@ export function useSatellites() {
       distance: 140,
       speed: 0.8,
       color: "#8B5CF6",
+      orbitNumber: 5847,
     },
     {
       id: "sat-2",
@@ -27,6 +28,7 @@ export function useSatellites() {
       distance: 110,
       speed: 1.2,
       color: "#06B6D4",
+      orbitNumber: 142563,
     },
     {
       id: "sat-3",
@@ -35,22 +37,25 @@ export function useSatellites() {
       distance: 160,
       speed: 0.6,
       color: "#10B981",
+      orbitNumber: 194872,
     },
-{
-        id: "sat-4",
-        name: "TERRA",
-        angle: 270,
-        distance: 130,
-        speed: 0.9,
-        color: "#F59E0B",
-      },
-{
+    {
+      id: "sat-4",
+      name: "TERRA",
+      angle: 270,
+      distance: 130,
+      speed: 0.9,
+      color: "#F59E0B",
+      orbitNumber: 129456,
+    },
+    {
       id: "sat-5",
       name: "CHANDRAYAAN-3",
       angle: 45,
       distance: 170,
       speed: 0.5,
       color: "#FF6B35",
+      orbitNumber: 2847,
     },
     {
       id: "sat-6",
@@ -59,6 +64,7 @@ export function useSatellites() {
       distance: 185,
       speed: 0.4,
       color: "#FFD700",
+      orbitNumber: 156,
     },
   ])
 
