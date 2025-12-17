@@ -35,15 +35,23 @@ export function useSatellites() {
       speed: 0.6,
       color: "#10B981",
     },
-    {
-      id: "sat-4",
-      name: "TERRA",
-      angle: 270,
-      distance: 130,
-      speed: 0.9,
-      color: "#F59E0B",
-    },
-  ])
+{
+        id: "sat-4",
+        name: "TERRA",
+        angle: 270,
+        distance: 130,
+        speed: 0.9,
+        color: "#F59E0B",
+      },
+      {
+        id: "sat-5",
+        name: "CHANDRAYAAN-3",
+        angle: 45,
+        distance: 170,
+        speed: 0.5,
+        color: "#FF6B35",
+      },
+    ])
 
   useEffect(() => {
     const interval = setInterval(() => {
