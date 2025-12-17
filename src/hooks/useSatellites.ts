@@ -7,6 +7,7 @@ interface Satellite {
   distance: number
   speed: number
   color: string
+  orbitNumber: number
 }
 
 export function useSatellites() {
