@@ -182,8 +182,18 @@ export function WorldMap() {
         </div>
         <Badge variant="outline" className="border-cyan-500 text-cyan-400 text-xs">
           <Navigation className="w-3 h-3 mr-1" />
-          LEO SATELLITE
+          ISS (REAL DATA)
         </Badge>
+      </div>
+      
+      <div className="mb-2 flex items-center gap-2">
+        <Badge variant="secondary" className="text-[10px] bg-primary/20 text-primary border-primary/30">
+          REAL ORBIT DATA + SIMULATED TELEMETRY
+        </Badge>
+        <div className="flex items-center gap-1 text-[9px] text-muted-foreground italic">
+          <Database className="w-2.5 h-2.5" />
+          Orbital data from public TLE sources (Celestrak)
+        </div>
       </div>
       
       <motion.div
