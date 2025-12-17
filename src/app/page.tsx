@@ -241,9 +241,9 @@ export default function Home() {
                         <span className="font-mono">Select Satellites ({selectedSatellites.length})</span>
                         <ChevronDown className={`w-4 h-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
                       </button>
-                      {dropdownOpen && (
-                        <div className="absolute top-full left-0 mt-2 w-64 bg-card/95 backdrop-blur-sm border border-border/50 rounded-lg shadow-xl z-50">
-                          <div className="p-2 space-y-1">
+                        {dropdownOpen && (
+                          <div className="absolute top-full left-0 mt-2 w-64 bg-card/95 backdrop-blur-sm border border-border/50 rounded-lg shadow-xl z-50 max-h-64 overflow-y-auto">
+                            <div className="p-2 space-y-1">
                             {satellites.map((sat) => (
                               <button
                                 key={sat.id}
