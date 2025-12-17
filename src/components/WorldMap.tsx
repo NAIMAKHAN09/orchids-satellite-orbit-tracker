@@ -4,7 +4,8 @@ import { useEffect, useState, useRef } from "react"
 import { motion } from "framer-motion"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Navigation } from "lucide-react"
+import { MapPin, Navigation, Database } from "lucide-react"
+import * as satellite from "satellite.js"
 
 interface SatellitePosition {
   lat: number
@@ -13,46 +14,78 @@ interface SatellitePosition {
   velocity: number
 }
 
+const ISS_TLE_LINE1 = "1 25544U 98067A   24063.48644508  .00014387  00000+0  26154-3 0  9990"
+const ISS_TLE_LINE2 = "2 25544  51.6416  60.4079 0005089 150.3957 263.8576 15.49893963441957"
+
 export function WorldMap() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [position, setPosition] = useState<SatellitePosition>({
-    lat: 28.5,
-    lng: -80.6,
-    altitude: 408,
+    lat: 0,
+    lng: 0,
+    altitude: 400,
     velocity: 7.66,
   })
   const [groundTrack, setGroundTrack] = useState<{ lat: number; lng: number }[]>([])
+  const [tle, setTle] = useState({ line1: ISS_TLE_LINE1, line2: ISS_TLE_LINE2 })
 
   useEffect(() => {
-    let time = 0
-    const orbitPeriod = 92 * 60
-    const inclination = 51.6
-    
-    const interval = setInterval(() => {
-      time += 5
-      
-      const meanAnomaly = (time / orbitPeriod) * 360
-      const lng = ((meanAnomaly + 180) % 360) - 180
-      const lat = inclination * Math.sin((meanAnomaly * Math.PI) / 180)
-      const altVariation = 408 + Math.sin((time / 100) * Math.PI) * 5
-      const velVariation = 7.66 + Math.cos((time / 80) * Math.PI) * 0.05
-      
-      const newPos = {
-        lat: lat,
-        lng: lng,
-        altitude: altVariation,
-        velocity: velVariation,
+    const fetchTLE = async () => {
+      try {
+        const response = await fetch("https://tle.ivanstanojevic.me/api/tle/25544")
+        const data = await response.json()
+        if (data.line1 && data.line2) {
+          setTle({ line1: data.line1, line2: data.line2 })
+        }
+      } catch (error) {
+        console.error("Error fetching TLE:", error)
       }
+    }
+    fetchTLE()
+  }, [])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date()
+      const satrec = satellite.twoline2satrec(tle.line1, tle.line2)
+      const positionAndVelocity = satellite.propagate(satrec, now)
       
-      setPosition(newPos)
-      setGroundTrack((prev) => {
-        const newTrack = [...prev, { lat: newPos.lat, lng: newPos.lng }]
-        return newTrack.slice(-100)
-      })
-    }, 100)
+      const positionEci = positionAndVelocity.position
+      if (typeof positionEci !== "boolean") {
+        const gmst = satellite.gstime(now)
+        const positionGd = satellite.eciToGeodetic(positionEci as satellite.EciVec3<number>, gmst)
+        
+        const longitude = satellite.degreesLong(positionGd.longitude)
+        const latitude = satellite.degreesLat(positionGd.latitude)
+        const height = positionGd.height
+        
+        // Velocity magnitude calculation
+        const velocityEci = positionAndVelocity.velocity
+        let velMag = 7.66
+        if (typeof velocityEci !== "boolean") {
+          velMag = Math.sqrt(
+            Math.pow(velocityEci.x, 2) + 
+            Math.pow(velocityEci.y, 2) + 
+            Math.pow(velocityEci.z, 2)
+          )
+        }
+
+        const newPos = {
+          lat: latitude,
+          lng: longitude,
+          altitude: height,
+          velocity: velMag,
+        }
+        
+        setPosition(newPos)
+        setGroundTrack((prev) => {
+          const newTrack = [...prev, { lat: newPos.lat, lng: newPos.lng }]
+          return newTrack.slice(-200)
+        })
+      }
+    }, 1000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [tle])
 
   useEffect(() => {
     const canvas = canvasRef.current
