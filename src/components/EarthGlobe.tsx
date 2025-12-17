@@ -14,9 +14,10 @@ interface Satellite {
 
 interface EarthGlobeProps {
   satellites: Satellite[]
+  selectedId?: string
 }
 
-export function EarthGlobe({ satellites }: EarthGlobeProps) {
+export function EarthGlobe({ satellites, selectedId }: EarthGlobeProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
