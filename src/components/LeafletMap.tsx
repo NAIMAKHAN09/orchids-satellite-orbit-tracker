@@ -19,18 +19,10 @@ interface LeafletMapProps {
   groundTrack: { lat: number; lng: number }[]
   color: string
   name: string
+  id: string
 }
 
-function RecenterMap({ position }: { position: [number, number] }) {
-  const map = useMap()
-  useEffect(() => {
-    // We don't necessarily want to follow the satellite constantly with the camera
-    // but we can ensure it's at least visible or centered on first load.
-  }, [position, map])
-  return null
-}
-
-export default function LeafletMap({ position, groundTrack, color, name }: LeafletMapProps) {
+export default function LeafletMap({ position, groundTrack, color, name, id }: LeafletMapProps) {
   const satPos: [number, number] = [position.lat, position.lng]
   
   const polylinePositions = groundTrack.map(p => [p.lat, p.lng] as [number, number])
@@ -70,12 +62,14 @@ export default function LeafletMap({ position, groundTrack, color, name }: Leafl
   return (
     <div className="w-full h-full min-h-[300px] rounded-lg overflow-hidden border border-border/50">
       <MapContainer 
+        key={id}
         center={[0, 0]} 
         zoom={2} 
         scrollWheelZoom={true} 
         style={{ height: '100%', width: '100%', background: '#0a1628' }}
         attributionControl={false}
       >
+
         {/* Google Hybrid (Satellite + Roads) */}
         <TileLayer
           url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}"
