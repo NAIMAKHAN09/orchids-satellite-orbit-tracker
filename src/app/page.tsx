@@ -87,15 +87,18 @@ export default function Home() {
                 <div className="flex-1">
                   <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
                     Satellite Data Visualizer
-                    <Badge variant="secondary" className="text-xs">SIMULATION</Badge>
+                    <Badge variant="secondary" className="text-xs">REAL ORBIT DATA + SIMULATED TELEMETRY</Badge>
                   </h2>
                   <p className="text-muted-foreground text-sm leading-relaxed max-w-2xl">
-                    Real-time satellite orbit tracking and telemetry monitoring dashboard. 
-                    This simulation demonstrates orbital mechanics, ground track visualization, 
-                    and live telemetry data streams from Low Earth Orbit satellites. 
-                    Watch as satellites traverse their orbital paths while monitoring critical 
-                    parameters like altitude, velocity, temperature, and signal strength.
+                    Real-time satellite orbit tracking using official TLE data and simulated telemetry monitoring dashboard. 
+                    This visualization combines real orbital mechanics via satellite.js with ground track visualization, 
+                    and live telemetry data streams. Watch as the ISS traverses its real orbital path while monitoring critical 
+                    parameters like altitude, velocity, and simulated health stats.
                   </p>
+                  <div className="mt-2 flex items-center gap-2 text-[10px] text-muted-foreground font-mono">
+                    <Database className="w-3 h-3" />
+                    DATA SOURCE: Public TLE sources (Celestrak / Space-Track)
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <Badge variant="outline" className="border-cyan-500/50 text-cyan-400">
