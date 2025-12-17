@@ -137,8 +137,8 @@ export default function Home() {
                     <div className="flex justify-center">
                       <EarthGlobe satellites={satellites} />
                     </div>
-                    <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-2">
-                      {satellites.slice(0, 6).map((sat, i) => (
+                      <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {satellites.slice(0, 12).map((sat, i) => (
                         <motion.div
                           key={sat.id}
                           initial={{ opacity: 0, scale: 0.8 }}
