@@ -6,7 +6,7 @@ const loaderPath = require.resolve('orchids-visual-edits/loader.js');
 
 const nextConfig: NextConfig = {
   output: 'export',
-  basePath: process.env.NODE_ENV === 'production' ? '/orchids-satellite-orbit-tracker' : '',
+  basePath: process.env.NODE_ENV === 'production' ? '/your-repo-name' : '',
   images: {
     unoptimized: true,
     remotePatterns: [
@@ -38,4 +38,4 @@ const nextConfig: NextConfig = {
 } as NextConfig;
 
 export default nextConfig;
-// Orchids restart: 1766030554394
+// Orchids restart: 1766030591685
