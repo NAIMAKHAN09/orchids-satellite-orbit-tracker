@@ -75,43 +75,44 @@ export function WorldMap() {
         </div>
       </div>
       
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="relative rounded-lg overflow-hidden bg-[#0a1628] aspect-[2/1]"
-      >
-        {loading && !position && (
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/20 backdrop-blur-[2px]">
-            <Loader2 className="w-6 h-6 text-primary animate-spin mb-2" />
-            <span className="text-[10px] font-mono animate-pulse">ACQUIRING ORBITAL ELEMENTS...</span>
-          </div>
-        )}
-        
-        {error && (
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-red-500/10 backdrop-blur-[2px]">
-            <span className="text-[10px] font-mono text-red-400 uppercase tracking-widest">{error}</span>
-          </div>
-        )}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="relative rounded-xl overflow-hidden bg-secondary/10 border border-border/30 shadow-inner min-h-[400px]"
+        >
+          {loading && !position && (
+            <div className="absolute inset-0 z-[2000] flex flex-col items-center justify-center bg-background/40 backdrop-blur-md">
+              <Loader2 className="w-8 h-8 text-primary animate-spin mb-3" />
+              <span className="text-xs font-mono animate-pulse tracking-widest text-primary">ACQUIRING ORBITAL ELEMENTS...</span>
+            </div>
+          )}
+          
+          {error && (
+            <div className="absolute inset-0 z-[2000] flex flex-col items-center justify-center bg-red-500/10 backdrop-blur-md">
+              <span className="text-sm font-mono text-red-400 uppercase tracking-widest px-4 py-2 border border-red-500/30 rounded bg-red-500/10">{error}</span>
+            </div>
+          )}
+  
+          {position && (
+            <LeafletMap 
+              position={position} 
+              groundTrack={groundTrack} 
+              color={selectedSat.color} 
+              name={selectedSat.name}
+              id={selectedSat.id}
+            />
+          )}
+          
+          {selectedSatId === "iss" && (
+            <div className="absolute top-16 left-2 z-[1000] pointer-events-none">
+              <Badge variant="secondary" className="bg-primary/80 text-primary-foreground text-[10px] border-primary/30 uppercase font-bold shadow-lg backdrop-blur-sm">
+                Demo Lock: ISS Active
+              </Badge>
+            </div>
+          )}
+        </motion.div>
 
-        {position && (
-          <LeafletMap 
-            position={position} 
-            groundTrack={groundTrack} 
-            color={selectedSat.color} 
-            name={selectedSat.name}
-            id={selectedSat.id}
-          />
-        )}
-        
-        {selectedSatId === "iss" && (
-          <div className="absolute top-2 left-2 z-[1000] pointer-events-none">
-            <Badge variant="secondary" className="bg-primary/20 text-[8px] border-primary/30 uppercase">
-              Demo Lock: ISS Active
-            </Badge>
-          </div>
-        )}
-      </motion.div>
 
       {position && (
         <div className="mt-3 grid grid-cols-4 gap-2 text-center">
