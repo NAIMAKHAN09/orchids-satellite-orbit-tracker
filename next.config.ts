@@ -5,7 +5,10 @@ import path from "node:path";
 const loaderPath = require.resolve('orchids-visual-edits/loader.js');
 
 const nextConfig: NextConfig = {
+  output: 'export',
+  basePath: process.env.NODE_ENV === 'production' ? '/your-repo-name' : '',
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
