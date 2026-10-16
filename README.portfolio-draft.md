@@ -1,33 +1,38 @@
 # Satellite Orbit Tracker
 
-A web application project focused on satellite tracking and orbital visualization.
+A web-based satellite visualization project with an interactive globe, satellite selection, orbit-style visuals, and telemetry panels. The current implementation is best described as a **simulation and visualization prototype**, not a verified live satellite-tracking service.
 
-This project uses a modern TypeScript and Next.js stack, with libraries for orbital calculations, mapping, and 3D visualization.
+## Current Scope
+
+The application presents a dashboard for exploring satellite-themed visualizations. In the current source:
+
+- The satellite list begins with predefined sample entries.
+- Satellite positions in the main hook are animated by updating their display angles.
+- The telemetry panel generates changing sample values locally.
+- The UI labels the telemetry as a simulation.
+
+These values are illustrative. They are not evidence of live telemetry, authoritative satellite positions, or measured spacecraft health.
 
 ## Technology Stack
 
-- Next.js
-- React
+- Next.js 15 and React
 - TypeScript
 - satellite.js
 - Leaflet and React Leaflet
 - Three.js
 - Tailwind CSS
+- Framer Motion
 
-## Project Goals
+The dependencies provide a foundation for richer orbital calculations and visualization. Their presence alone does not mean every library is currently used for live orbital propagation.
 
-The project provides a foundation for exploring satellite position data and presenting orbital information through interactive web visualizations.
-
-The exact supported satellites, data providers, propagation methods, refresh intervals, and visualization features should be documented after verification against the implementation.
-
-## Getting Started
+## Run Locally
 
 ### Prerequisites
 
 - Node.js
 - npm
 
-### Installation
+### Install dependencies
 
 ```bash
 git clone https://github.com/NAIMAKHAN09/orchids-satellite-orbit-tracker.git
@@ -35,48 +40,42 @@ cd orchids-satellite-orbit-tracker
 npm install
 ```
 
-### Run the Development Server
+### Start the development server
 
 ```bash
 npm run dev
 ```
 
-Open http://localhost:3000 in your browser.
+Open [http://localhost:3000](http://localhost:3000).
 
-### Build for Production
+### Build and lint
 
 ```bash
 npm run build
-```
-
-Run the project's configured lint command with:
-
-```bash
 npm run lint
 ```
 
-## Technical Areas
+These are the scripts declared in `package.json`; successful execution has not been independently verified as part of this documentation pass.
 
-- Orbital calculations using satellite.js
-- Mapping and geographic visualization
-- 3D graphics using Three.js
-- Component-based application architecture
-- TypeScript-based development
+## Engineering Areas
 
-## Engineering Considerations
+- Interactive satellite-themed data visualization
+- Animated orbit-style displays
+- Telemetry dashboard UI
+- Component-based React architecture
+- Potential extension into orbital propagation using TLE or other validated orbital elements
 
-Satellite tracking results depend on the source and age of orbital elements, the propagation model, and the coordinate and time conventions used.
+## Important Limitations
 
-A complete technical description should explain the orbital data source, update strategy, supported coordinate systems, accuracy limitations, and any assumptions used by the application.
+Before describing this as a live tracker, connect a documented orbital-element source, implement and validate the propagation and coordinate transformations, define data refresh behavior, and distinguish computed positions from measured telemetry. Document data freshness, assumptions, and accuracy limitations.
 
-## Future Improvements
+## Potential Next Steps
 
-- Add screenshots and a live demo if available.
-- Document data sources and orbital calculations.
-- Explain the application's architecture and data flow.
-- Add tests for orbital calculations and data transformations.
-- Include known limitations and troubleshooting guidance.
+- Add screenshots and a verified live demo.
+- Document which components use real data versus simulated values.
+- Add tests for orbital calculations once implemented.
+- Document data sources, coordinate conventions, and known limitations.
 
 ## License
 
-Confirm the intended project license before redistribution.
+Confirm the intended license before redistributing the project.
