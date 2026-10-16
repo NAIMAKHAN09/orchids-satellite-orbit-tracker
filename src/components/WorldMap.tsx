@@ -67,11 +67,11 @@ export function WorldMap() {
       <div className="mb-2 flex flex-wrap items-center gap-2">
         <Badge variant="outline" className="text-[9px] border-cyan-500/50 text-cyan-400 px-1.5 py-0">
           <Navigation className="w-2.5 h-2.5 mr-1" />
-          REAL-TIME TLE TRACKING
+          TLE-BASED ORBIT TRACKING
         </Badge>
         <div className="flex items-center gap-1 text-[9px] text-muted-foreground">
           <Database className="w-2.5 h-2.5" />
-          Source: Celestrak TLE
+          Source: Ivan Stanojevic TLE API
         </div>
       </div>
       
@@ -84,7 +84,7 @@ export function WorldMap() {
           {loading && !position && (
             <div className="absolute inset-0 z-[2000] flex flex-col items-center justify-center bg-background/40 backdrop-blur-md">
               <Loader2 className="w-8 h-8 text-primary animate-spin mb-3" />
-              <span className="text-xs font-mono animate-pulse tracking-widest text-primary">ACQUIRING ORBITAL ELEMENTS...</span>
+              <span className="text-xs font-mono animate-pulse tracking-widest text-primary">FETCHING ORBITAL ELEMENTS...</span>
             </div>
           )}
           
@@ -107,7 +107,7 @@ export function WorldMap() {
           {selectedSatId === "iss" && (
             <div className="absolute top-16 left-2 z-[1000] pointer-events-none">
               <Badge variant="secondary" className="bg-primary/80 text-primary-foreground text-[10px] border-primary/30 uppercase font-bold shadow-lg backdrop-blur-sm">
-                Demo Lock: ISS Active
+                Selected: ISS
               </Badge>
             </div>
           )}
