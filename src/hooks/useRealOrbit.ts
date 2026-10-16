@@ -24,6 +24,11 @@ export const SATELLITE_REGISTRY: SatelliteMetadata[] = [
   { id: "navic", name: "NavIC (India)", catnr: "40613", color: "#FF6B35" },
 ];
 
+interface TleResponse {
+  line1?: unknown;
+  line2?: unknown;
+}
+
 export function useRealOrbit(catnr: string) {
   const [tle, setTle] = useState<{ line1: string; line2: string } | null>(null);
   const [position, setPosition] = useState<SatellitePosition | null>(null);
@@ -32,80 +37,117 @@ export function useRealOrbit(catnr: string) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let isMounted = true;
+    const controller = new AbortController();
+    let isCurrentRequest = true;
+
+    // Never keep showing a previous satellite while the next one is loading.
+    setTle(null);
+    setPosition(null);
+    setGroundTrack([]);
+    setLoading(true);
+    setError(null);
+
     const fetchTLE = async () => {
-      setLoading(true);
-      setError(null);
       try {
-        // Using a more reliable TLE API that supports CORS
-        const response = await fetch(`https://tle.ivanstanojevic.me/api/tle/${catnr}`);
-        const data = await response.json();
-        
-        if (data.line1 && data.line2 && isMounted) {
+        const response = await fetch(
+          `https://tle.ivanstanojevic.me/api/tle/${encodeURIComponent(catnr)}`,
+          { signal: controller.signal }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Orbital data request failed (HTTP ${response.status})`);
+        }
+
+        const data = (await response.json()) as TleResponse;
+        if (
+          typeof data.line1 !== "string" ||
+          typeof data.line2 !== "string" ||
+          !data.line1.startsWith("1 ") ||
+          !data.line2.startsWith("2 ")
+        ) {
+          throw new Error("The orbital data provider returned an invalid TLE.");
+        }
+
+        if (isCurrentRequest) {
           setTle({ line1: data.line1, line2: data.line2 });
-          setGroundTrack([]); // Reset ground track on satellite change
-        } else if (isMounted) {
-          throw new Error("Invalid TLE data received");
         }
       } catch (err) {
-        if (isMounted) {
-          setError("Failed to fetch orbital data");
-          console.error(err);
+        if (isCurrentRequest && !controller.signal.aborted) {
+          setError(err instanceof Error ? err.message : "Failed to fetch orbital data.");
+          setLoading(false);
         }
-      } finally {
-        if (isMounted) setLoading(false);
       }
     };
 
-    fetchTLE();
-    return () => { isMounted = false; };
+    void fetchTLE();
+
+    return () => {
+      isCurrentRequest = false;
+      controller.abort();
+    };
   }, [catnr]);
 
   useEffect(() => {
     if (!tle) return;
 
-    const updatePosition = () => {
-      const now = new Date();
-      const satrec = satellite.twoline2satrec(tle.line1, tle.line2);
-      const positionAndVelocity = satellite.propagate(satrec, now);
-      
-      const positionEci = positionAndVelocity.position;
-      const velocityEci = positionAndVelocity.velocity;
+    let isActive = true;
 
-      if (typeof positionEci !== "boolean" && typeof velocityEci !== "boolean") {
+    const updatePosition = () => {
+      try {
+        const now = new Date();
+        const satrec = satellite.twoline2satrec(tle.line1, tle.line2);
+        const propagated = satellite.propagate(satrec, now);
+        const positionEci = propagated.position;
+        const velocityEci = propagated.velocity;
+
+        if (
+          satrec.error !== 0 ||
+          typeof positionEci === "boolean" ||
+          typeof velocityEci === "boolean"
+        ) {
+          throw new Error("Orbital propagation failed for the received TLE.");
+        }
+
         const gmst = satellite.gstime(now);
-        const positionGd = satellite.eciToGeodetic(positionEci as satellite.EciVec3<number>, gmst);
-        
-        const lng = satellite.degreesLong(positionGd.longitude);
+        const positionGd = satellite.eciToGeodetic(
+          positionEci as satellite.EciVec3<number>,
+          gmst
+        );
         const lat = satellite.degreesLat(positionGd.latitude);
-        const alt = positionGd.height;
-        
-        const velMag = Math.sqrt(
-          Math.pow(velocityEci.x, 2) + 
-          Math.pow(velocityEci.y, 2) + 
-          Math.pow(velocityEci.z, 2)
+        const lng = satellite.degreesLong(positionGd.longitude);
+        const altitude = positionGd.height;
+        const velocity = Math.sqrt(
+          velocityEci.x ** 2 + velocityEci.y ** 2 + velocityEci.z ** 2
         );
 
-        const newPos = {
-          lat,
-          lng,
-          altitude: alt,
-          velocity: velMag,
-          timestamp: now.getTime()
-        };
+        if (![lat, lng, altitude, velocity].every(Number.isFinite)) {
+          throw new Error("Orbital propagation returned invalid coordinates.");
+        }
 
-        setPosition(newPos);
-        setGroundTrack(prev => {
-          const next = [...prev, { lat, lng }];
-          // Keep last 100 points for the track
-          return next.slice(-100);
-        });
+        if (!isActive) return;
+
+        setPosition({ lat, lng, altitude, velocity, timestamp: now.getTime() });
+        setError(null);
+        setLoading(false);
+        setGroundTrack((previous) =>
+          [...previous, { lat, lng }].slice(-100)
+        );
+      } catch (err) {
+        if (isActive) {
+          setError(err instanceof Error ? err.message : "Unable to calculate the satellite position.");
+          setPosition(null);
+          setLoading(false);
+        }
       }
     };
 
     updatePosition();
-    const interval = setInterval(updatePosition, 3000); // Update every 3 seconds as requested
-    return () => clearInterval(interval);
+    const interval = setInterval(updatePosition, 3000);
+
+    return () => {
+      isActive = false;
+      clearInterval(interval);
+    };
   }, [tle]);
 
   return { position, groundTrack, loading, error, tle };
