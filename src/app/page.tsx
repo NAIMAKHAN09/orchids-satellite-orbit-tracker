@@ -62,7 +62,7 @@ export default function Home() {
               <div className="flex items-center gap-4">
                 <Badge variant="outline" className="pulse-glow border-accent text-accent">
                   <Activity className="w-3 h-3 mr-1" />
-                  LIVE
+                  SIMULATION
                 </Badge>
                 <Badge variant="outline" className="border-primary text-primary">
                   <Radar className="w-3 h-3 mr-1" />
@@ -88,17 +88,17 @@ export default function Home() {
                 <div className="flex-1">
                   <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
                     Satellite Data Visualizer
-                    <Badge variant="secondary" className="text-xs">REAL ORBIT DATA + SIMULATED TELEMETRY</Badge>
+                    <Badge variant="secondary" className="text-xs">TLE-BASED ORBIT + SIMULATED TELEMETRY</Badge>
                   </h2>
                   <p className="text-muted-foreground text-sm leading-relaxed max-w-2xl">
-                    Real-time satellite orbit tracking using official TLE data and simulated telemetry monitoring dashboard. 
-                    This visualization combines real orbital mechanics via satellite.js with ground track visualization, 
-                    and live telemetry data streams. Watch as the ISS traverses its real orbital path while monitoring critical 
-                    parameters like altitude, velocity, and simulated health stats.
+                    Explore satellite positions calculated from fetched Two-Line Element (TLE) data with satellite.js.
+                    The ground-track view uses orbital elements from the Ivan Stanojevic TLE API. The 3D globe, status
+                    cards, charts, and telemetry panels are illustrative simulations and should not be interpreted as
+                    verified live satellite telemetry or measurements.
                   </p>
                   <div className="mt-2 flex items-center gap-2 text-[10px] text-muted-foreground font-mono">
                     <Database className="w-3 h-3" />
-                    DATA SOURCE: Public TLE sources (Celestrak / Space-Track)
+                    GROUND-TRACK SOURCE: tle.ivanstanojevic.me API · TELEMETRY: SIMULATED
                   </div>
                 </div>
                 <div className="flex gap-2">
